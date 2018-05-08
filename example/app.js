@@ -39,6 +39,7 @@ function start() {
 }
 Nanogui.postRun.push(function() {
   start();
+  createApp();
 });
 
 
@@ -64,12 +65,20 @@ function createApp() {
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
   win.setLayout(layout);
   //
-  var label = new Nanogui.Label(win, "text label", "sans-bold", 30);
+  var label = new Nanogui.Label(win, "Push buttons", "sans-bold", 16);
   //
-  button = new Nanogui.Button(win, "button", 0);
+  button = new Nanogui.Button(win, "Plain button", 0);
   button.addClick(function(b) {
-    console.log('click', b);
+    console.log('plain button clicked');
   });
+  button.setTooltip("short tooltip");
+  //
+  button = new Nanogui.Button(win, "Styled", 0x0000F235);
+  button.addClick(function(b) {
+    console.log('styled button clicked');
+  });
+  button.setTooltip("This button has a fairly long tooltip. It is so long, in fact, that the shown text will span several lines.");
+  //button.setBackgroundColor();
   //
   screen.performLayout();
 }

@@ -218,10 +218,11 @@ EMSCRIPTEN_BINDINGS(GroupLayout) {
 }
 
 EMSCRIPTEN_BINDINGS(Window) {
-    emscripten::class_<nanogui::Widget>("Widget")
-        .function("setPosition", &nanogui::Widget::setPosition)
-        .function("setLayout", &nanogui::Widget::setLayout, allow_raw_pointers());
-    emscripten::class_<nanogui::Window, emscripten::base<nanogui::Widget>>("Window")
+    emscripten::class_<Widget>("Widget")
+        .function("setPosition", &Widget::setPosition)
+        .function("setTooltip", &Widget::setTooltip)
+        .function("setLayout", &Widget::setLayout, allow_raw_pointers());
+    emscripten::class_<Window, emscripten::base<Widget>>("Window")
         .constructor<
             nanogui::Screen*,
             std::string
@@ -248,7 +249,14 @@ public:
 };
 
 EMSCRIPTEN_BINDINGS(Label) {
-    emscripten::class_<JSButton>("Button")
+    emscripten::class_<Button, emscripten::base<Widget>>("__Button")
+        .constructor<
+            nanogui::Window*,
+            std::string,
+            int
+        >()
+        .function("setBackgroundColor", &Button::setBackgroundColor);
+    emscripten::class_<JSButton, emscripten::base<Button>>("Button")
         .constructor<
             nanogui::Window*,
             std::string,
