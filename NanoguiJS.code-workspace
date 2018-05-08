@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "nanogui-GLES-wasm"
+		},
+		{
+			"path": "lib"
+		}
+	]
+}

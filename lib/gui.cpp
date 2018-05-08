@@ -177,8 +177,61 @@ extern "C" {
     if (app) {
         app->clear();
     }
-  }  
+  }
+
+  extern void dropEvent(int event, int value1, int value2=0);
 }
+
+
+class JSButton: public nanogui::Button {
+public:
+    JSButton(Widget *parent, const std::string &caption = "Untitled", int icon = 0)
+    : nanogui::Button(parent, caption, icon) {
+
+    }
+
+    int setCallbackJS() {
+        //
+        setCallback([this](){
+            dropEvent(1, (int)this);
+        });
+        //
+        setChangeCallback([this](bool state) {
+            dropEvent(2, (int)this, state);
+        });
+        //
+        return (int)this;
+    }
+};
+
+Orientation intToOrientation(int o) {
+    if (o == 1) {
+        return Orientation::Vertical;
+    } else {
+        return Orientation::Horizontal;
+    }
+}
+Alignment intToAlignment(int a) {
+    switch (a) {
+        //case 0: return Alignment::Minimum;
+        case 1: return Alignment::Middle;
+        case 2: return Alignment::Maximum;
+        case 3: return Alignment::Fill;
+        default: return Alignment::Minimum;
+    }
+}
+
+class JSBoxLayout: public BoxLayout {
+public:
+    JSBoxLayout(int orientation, int alignment, int margin, int spacing)
+    : BoxLayout(intToOrientation(orientation), intToAlignment(alignment), margin, spacing) {
+    }
+};
+
+
+
+
+
 
 EMSCRIPTEN_BINDINGS(ExampleApplication) {
     emscripten::class_<ExampleApplication>("ExampleApplication")
@@ -188,6 +241,8 @@ EMSCRIPTEN_BINDINGS(ExampleApplication) {
 EMSCRIPTEN_BINDINGS(Vector2i) {
     emscripten::class_<Eigen::Matrix<int,2,1>>("Vector2i")
         .constructor<int, int>();
+    emscripten::class_<Color>("Color")
+         .constructor<int, int, int, int>();
 }
 
 EMSCRIPTEN_BINDINGS(Screen) {
@@ -212,15 +267,21 @@ EMSCRIPTEN_BINDINGS(Screen) {
 }
 
 EMSCRIPTEN_BINDINGS(GroupLayout) {
-    emscripten::class_<nanogui::Layout>("Layout");
-    emscripten::class_<nanogui::GroupLayout, emscripten::base<nanogui::Layout>>("GroupLayout")
+    emscripten::class_<Layout>("Layout");
+    emscripten::class_<GroupLayout, base<Layout>>("GroupLayout")
+        .constructor<int, int, int, int>();
+    emscripten::class_<BoxLayout, base<Layout>>("__BoxLayout")
+        .constructor<Orientation, Alignment, int, int>();
+    emscripten::class_<JSBoxLayout, base<BoxLayout>>("BoxLayout")
         .constructor<int, int, int, int>();
 }
 
 EMSCRIPTEN_BINDINGS(Window) {
     emscripten::class_<Widget>("Widget")
+        .constructor<Widget*>()
         .function("setPosition", &Widget::setPosition)
         .function("setTooltip", &Widget::setTooltip)
+        .function("setFixedSize", &Widget::setFixedSize)
         .function("setLayout", &Widget::setLayout, allow_raw_pointers());
     emscripten::class_<Window, emscripten::base<Widget>>("Window")
         .constructor<
@@ -229,40 +290,22 @@ EMSCRIPTEN_BINDINGS(Window) {
         >();
 }
 
-extern "C" {
-    extern void dropEvent(int event, int value1);
-}
-
-class JSButton: public nanogui::Button {
-public:
-    JSButton(Widget *parent, const std::string &caption = "Untitled", int icon = 0)
-    : nanogui::Button(parent, caption, icon) {
-
-    }
-    void doCallback() {
-        dropEvent(1, (int)this);
-    }
-    int _setCallback() {
-        this->mCallback = std::bind(&JSButton::doCallback, this);
-        return (int)this;
-    }
-};
-
 EMSCRIPTEN_BINDINGS(Label) {
     emscripten::class_<Button, emscripten::base<Widget>>("__Button")
         .constructor<
-            nanogui::Window*,
+            nanogui::Widget*,
             std::string,
             int
         >()
+        .function("setFlags", &Button::setFlags)
         .function("setBackgroundColor", &Button::setBackgroundColor);
     emscripten::class_<JSButton, emscripten::base<Button>>("Button")
         .constructor<
-            nanogui::Window*,
+            nanogui::Widget*,
             std::string,
             int
         >()
-        .function("setCallback", &JSButton::_setCallback);
+        .function("setCallbacks", &JSButton::setCallbackJS);
     emscripten::class_<nanogui::Label>("Label")
         .constructor<
             nanogui::Window*,

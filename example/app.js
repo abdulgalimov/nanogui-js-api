@@ -65,20 +65,56 @@ function createApp() {
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
   win.setLayout(layout);
   //
-  var label = new Nanogui.Label(win, "Push buttons", "sans-bold", 16);
   //
-  button = new Nanogui.Button(win, "Plain button", 0);
-  button.addClick(function(b) {
+  //
+  new Nanogui.Label(win, "Push buttons", "sans-bold", 16);
+  //
+  var plainButton = new Nanogui.Button(win, "Plain button", 0);
+  plainButton.addClick(function(b) {
     console.log('plain button clicked');
   });
-  button.setTooltip("short tooltip");
+  plainButton.setTooltip("short tooltip");
   //
-  button = new Nanogui.Button(win, "Styled", 0x0000F235);
-  button.addClick(function(b) {
+  var styledButton = new Nanogui.Button(win, "Styled", 0x0000F235);
+  styledButton.addClick(function(b) {
     console.log('styled button clicked');
   });
-  button.setTooltip("This button has a fairly long tooltip. It is so long, in fact, that the shown text will span several lines.");
-  //button.setBackgroundColor();
+  styledButton.setTooltip("This button has a fairly long tooltip. It is so long, in fact, that the shown text will span several lines.");
+  styledButton.setBackgroundColor(new Nanogui.Color(0, 0, 255, 25));
+  //
+  //
+  //
+  new Nanogui.Label(win, "Toggle buttons", "sans-bold", 16);
+  //
+  var toggleButton = new Nanogui.Button(win, 'Toggle me', 0);
+  toggleButton.setFlags(Nanogui.Button.Flags.ToggleButton);
+  toggleButton.addChange(function(button, state) {
+    console.log('toggle button:', state);
+  });
+  //
+  //
+  //
+  new Nanogui.Label(win, "Radio buttons", "sans-bold", 16);
+  function onRadioButtonChange(button, state) {
+    console.log('radio button change:', state, button);
+  }
+  var radioButton1 = new Nanogui.Button(win, 'Radio button 1', 0);
+  radioButton1.setFlags(Nanogui.Button.Flags.RadioButton);
+  radioButton1.addChange(onRadioButtonChange);
+  var radioButton2 = new Nanogui.Button(win, 'Radio button 2', 0);
+  radioButton2.setFlags(Nanogui.Button.Flags.RadioButton);
+  radioButton2.addChange(onRadioButtonChange);
+  //
+  //
+  //
+  new Nanogui.Label(win, "A tool palette", "sans-bold", 16);
+  var tools = new Nanogui.Widget(win);
+  layout = new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2);
+  tools.setLayout(layout);
+  Nanogui.createToolButton(tools, Nanogui.Icons.FACEBOOK, 'Facebook');
+  Nanogui.createToolButton(tools, Nanogui.Icons.TWITTER, 'Twitter');
+  Nanogui.createToolButton(tools, Nanogui.Icons.BAIDU, 'Baidu');
+  Nanogui.createToolButton(tools, Nanogui.Icons.VK, 'Vkontakte');
   //
   screen.performLayout();
 }
