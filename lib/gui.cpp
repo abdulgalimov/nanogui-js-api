@@ -122,7 +122,32 @@ public:
         b = new ToolButton(tools, ENTYPO_ICON_COMPASS);
         b = new ToolButton(tools, ENTYPO_ICON_INSTALL);
 
-        
+
+
+
+        new Label(window, "Popup buttons", "sans-bold");
+        PopupButton *popupBtn = new PopupButton(window, "Popup", ENTYPO_ICON_EXPORT);
+        Popup *popup = popupBtn->popup();
+        popup->setLayout(new GroupLayout());
+        new Label(popup, "Arbitrary widgets can be placed here");
+        new CheckBox(popup, "A check box");
+        // popup right
+        popupBtn = new PopupButton(popup, "Recursive popup", ENTYPO_ICON_FLASH);
+        Popup *popupRight = popupBtn->popup();
+        popupRight->setLayout(new GroupLayout());
+        new CheckBox(popupRight, "Another check box");
+        // popup left
+        popupBtn = new PopupButton(popup, "Recursive popup", ENTYPO_ICON_FLASH);
+        popupBtn->setSide(Popup::Side::Left);
+        Popup *popupLeft = popupBtn->popup();
+        popupLeft->setLayout(new GroupLayout());
+        new CheckBox(popupLeft, "Another check box");
+        window = new Window(this, "Basic widgets");
+        window->setPosition(Vector2i(200, 15));
+        window->setLayout(new GroupLayout());
+
+
+
 
         performLayout();
     }
@@ -179,7 +204,7 @@ extern "C" {
     }
   }
 
-  extern void dropEvent(int event, int value1, int value2=0);
+  extern void dropEvent(int from, int event, int value1, int value2=0, int value3=0);
 }
 
 
@@ -193,15 +218,45 @@ public:
     int setCallbackJS() {
         //
         setCallback([this](){
-            dropEvent(1, (int)this);
+            dropEvent(1, 1, (int)this);
         });
         //
         setChangeCallback([this](bool state) {
-            dropEvent(2, (int)this, state);
+            dropEvent(1, 2, (int)this, state);
         });
         //
         return (int)this;
     }
+};
+
+class JSPopupButton: public PopupButton {
+public:
+    JSPopupButton(Widget *parent, const std::string &caption = "Untitled", int icon = 0)
+    : nanogui::PopupButton(parent, caption, icon) {
+
+    }
+
+    int setCallbackJS() {
+        setCallback([this](){
+            dropEvent(2, 1, (int)this);
+        });
+        //
+        setChangeCallback([this](bool state) {
+            dropEvent(2, 2, (int)this, state);
+        });
+        //
+        return (int)this;
+    }
+
+    void setSideJS(int side) {
+        if (side == 0) {
+           setSide(Popup::Left);
+        } else {
+           setSide(Popup::Right);
+        }
+    }
+
+    Popup* getPopup() {return popup();}
 };
 
 Orientation intToOrientation(int o) {
@@ -229,6 +284,24 @@ public:
 };
 
 
+
+
+class JSCheckBox: public CheckBox {
+public:
+    JSCheckBox(Widget *parent, const std::string &caption = "Untitled")
+    : CheckBox(parent, caption) {
+
+    }
+
+    int setCallbackJS() {
+        //
+        setCallback([this](bool state) {
+            dropEvent(3, 2, (int)this, state);
+        });
+        //
+        return (int)this;
+    }
+};
 
 
 
@@ -290,8 +363,8 @@ EMSCRIPTEN_BINDINGS(Window) {
         >();
 }
 
-EMSCRIPTEN_BINDINGS(Label) {
-    emscripten::class_<Button, emscripten::base<Widget>>("__Button")
+EMSCRIPTEN_BINDINGS(Button) {
+    emscripten::class_<Button, base<Widget>>("__Button")
         .constructor<
             nanogui::Widget*,
             std::string,
@@ -299,13 +372,46 @@ EMSCRIPTEN_BINDINGS(Label) {
         >()
         .function("setFlags", &Button::setFlags)
         .function("setBackgroundColor", &Button::setBackgroundColor);
-    emscripten::class_<JSButton, emscripten::base<Button>>("Button")
+    emscripten::class_<JSButton, base<Button>>("Button")
         .constructor<
             nanogui::Widget*,
             std::string,
             int
         >()
         .function("setCallbacks", &JSButton::setCallbackJS);
+    emscripten::class_<PopupButton, base<Button>>("__PopupButton")
+        .constructor<
+            nanogui::Widget*,
+            std::string,
+            int
+        >();
+    emscripten::class_<Popup, base<Window>>("Popup")
+        .constructor<
+            nanogui::Widget*,
+            nanogui::Window*
+        >();
+    emscripten::class_<JSPopupButton, base<Button>>("PopupButton")
+        .constructor<
+            nanogui::Widget*,
+            std::string,
+            int
+        >()
+        .function("setSide", &JSPopupButton::setSideJS)
+        .function("popup", &JSPopupButton::getPopup, allow_raw_pointers());
+}
+
+EMSCRIPTEN_BINDINGS(CheckBox) {
+    emscripten::class_<CheckBox, base<Widget>>("__CheckBox");
+    emscripten::class_<JSCheckBox, base<CheckBox>>("CheckBox")
+        .constructor<
+            nanogui::Widget*,
+            std::string
+        >()
+        .function("setCallbacks", &JSCheckBox::setCallbackJS);
+}
+
+
+EMSCRIPTEN_BINDINGS(Label) {
     emscripten::class_<nanogui::Label>("Label")
         .constructor<
             nanogui::Window*,

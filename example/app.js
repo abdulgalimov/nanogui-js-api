@@ -111,10 +111,31 @@ function createApp() {
   var tools = new Nanogui.Widget(win);
   layout = new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2);
   tools.setLayout(layout);
+  console.log('tools.setLayout', tools.setLayout);
   Nanogui.createToolButton(tools, Nanogui.Icons.FACEBOOK, 'Facebook');
   Nanogui.createToolButton(tools, Nanogui.Icons.TWITTER, 'Twitter');
   Nanogui.createToolButton(tools, Nanogui.Icons.BAIDU, 'Baidu');
   Nanogui.createToolButton(tools, Nanogui.Icons.VK, 'Vkontakte');
+  //
+  //
+  //
+  new Nanogui.Label(win, 'Popup buttons', 'sans-bold', 16);
+  var popupButton = new Nanogui.PopupButton(win, 'Popup', Nanogui.Icons.EXPORT);
+  var popup = popupButton.popup();
+  popup.setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
+  new Nanogui.Label(popup, "Arbitrary widgets can be placed here", "sans-bold", 16);
+  new Nanogui.CheckBox(popup, "A check box");
+  //
+  // popup right
+  var popupRight = new Nanogui.PopupButton(popup, "Recursive popup", Nanogui.Icons.FLASH);
+  popupRight.popup().setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
+  new Nanogui.CheckBox(popupRight.popup(), "Another check box");
+  //
+  // popup left
+  var popupLeft = new Nanogui.PopupButton(popup, "Recursive popup", Nanogui.Icons.FLASH);
+  popupLeft.popup().setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
+  popupLeft.setSide(Nanogui.Popup.Side.Left);
+  new Nanogui.CheckBox(popupLeft.popup(), "Another check box");
   //
   screen.performLayout();
 }
