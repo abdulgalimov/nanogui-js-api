@@ -18,10 +18,10 @@
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.emscripten { border: 1px solid black; }
     </style>
+      <script type="text/javascript" src="../build/nanogui.js"></script>
   </head>
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <script type="text/javascript" src="app.js"></script>
-    <script async type="text/javascript" src="../build/nanogui.js"></script>
   </body>
 </html>

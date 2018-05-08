@@ -37,6 +37,7 @@ function start() {
   requestAnimationFrame( animate );
 }
 Nanogui.postRun.push(function() {
+  console.log('postRun');
   Nanogui.Button.prototype.addClick = function(func) {
     if (!this.pointerId) {
       this._clickListeners = [];
@@ -73,7 +74,7 @@ function nanoguiEvent(event) {
 
 
 function stringToPointer(string) {
-  return allocate(intArrayFromString(string), 'i8', ALLOC_NORMAL);
+  return Nanogui.allocate(Nanogui.intArrayFromString(string), 'i8', Nanogui.ALLOC_NORMAL);
 }
 
 function createExamle() {
@@ -105,6 +106,7 @@ function createApp() {
   screen.performLayout();
 }
 
-function buttonCallback() {
-  
-}
+NanoguiModule(Nanogui)
+  .then(function() {
+    start();
+  });
