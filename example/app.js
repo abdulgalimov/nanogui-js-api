@@ -60,7 +60,7 @@ function createApp() {
   screen = new Nanogui.Screen(v, "NanoGUI for JS", true, false, 8, 8, 24, 8, 0, 3, 0, 0);
   screen.setVisible(true);
   //
-  win = new Nanogui.Window(screen, "test win");
+  win = new Nanogui.Window(screen, "Button demo");
   win.setPosition(new Nanogui.Vector2i(50, 50));
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
   win.setLayout(layout);
