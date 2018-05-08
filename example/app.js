@@ -29,6 +29,7 @@ window.onerror = function(event) {
 };
 
 function start() {
+  console.log('start');
   function animate() {
     //Nanogui._jsClear();
     Nanogui._jsLoop();
@@ -37,24 +38,7 @@ function start() {
   requestAnimationFrame( animate );
 }
 Nanogui.postRun.push(function() {
-  console.log('postRun');
-  Nanogui.Button.prototype.addClick = function(func) {
-    if (!this.pointerId) {
-      this._clickListeners = [];
-      var id = this.pointerId = this.setCallback();
-      //
-      if (!Nanogui.Button.items) {
-        Nanogui.Button.items = {};
-      }
-      Nanogui.Button.items[id] = this;
-    }
-    this._clickListeners.push({
-      func: func
-    });
-  };
-  //
   start();
-  console.log('wasm inited');
 });
 
 function nanoguiEvent(event) {
@@ -88,7 +72,6 @@ var button;
 function createApp() {
   var v = new Nanogui.Vector2i(1024, 768);
   screen = new Nanogui.Screen(v, "NanoGUI for JS", true, false, 8, 8, 24, 8, 0, 3, 0, 0);
-  screen.drawAll();
   screen.setVisible(true);
   //
   win = new Nanogui.Window(screen, "test win");
@@ -106,7 +89,4 @@ function createApp() {
   screen.performLayout();
 }
 
-NanoguiModule(Nanogui)
-  .then(function() {
-    start();
-  });
+NanoguiModule(Nanogui);

@@ -1,0 +1,8 @@
+{
+  "name": "NanoguiJS",
+  "version": "0.0.1",
+  "author": "Zaur Abdulgalimov",
+  "dependencies": {
+    "gulp": "^3.9.1"
+  }
+}
