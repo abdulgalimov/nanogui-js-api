@@ -345,6 +345,26 @@ public:
     }
 };
 
+class JSSlider: public Slider {
+public:
+    JSSlider(Widget *parent, float min, float max)
+    : Slider(parent) {
+        std::pair<float, float> range;
+        range.first = min;
+        range.second = max;
+        setRange(range);
+    }
+
+    int setCallbackJS() {
+        //
+        setCallback([this](float value) {
+            dropEvent(5, 2, (int)this, value);
+        });
+        //
+        return (int)this;
+    }
+};
+
 
 
 class JSMessageDialog: public MessageDialog {
@@ -420,6 +440,8 @@ EMSCRIPTEN_BINDINGS(Window) {
         .function("setPosition", &Widget::setPosition)
         .function("setTooltip", &Widget::setTooltip)
         .function("setFixedSize", &Widget::setFixedSize)
+        .function("setFixedWidth", &Widget::setFixedWidth)
+        .function("setFixedHeight", &Widget::setFixedHeight)
         .function("setLayout", &Widget::setLayout, allow_raw_pointers());
     emscripten::class_<Window, emscripten::base<Widget>>("Window")
         .constructor<
@@ -509,12 +531,61 @@ EMSCRIPTEN_BINDINGS(MessageDialog) {
 EMSCRIPTEN_BINDINGS(Label) {
     emscripten::class_<nanogui::Label, base<Widget>>("Label")
         .constructor<
-            nanogui::Window*,
+            nanogui::Widget*,
             std::string,
             std::string,
             int
         >();
 }
+
+EMSCRIPTEN_BINDINGS(ProgressBar) {
+    emscripten::class_<ProgressBar, base<Widget>>("ProgressBar")
+        .constructor<
+            nanogui::Widget*
+        >()
+        .function("value", &ProgressBar::value)
+        .function("setValue", &ProgressBar::setValue);
+}
+
+EMSCRIPTEN_BINDINGS(Slider) {
+    emscripten::class_<Slider, base<Widget>>("__Slider")
+        .constructor<
+            nanogui::Widget*
+        >()
+        .function("value", &Slider::value)
+        .function("setValue", &Slider::setValue)
+        .function("highlightColor", &Slider::highlightColor)
+        .function("setHighlightColor", &Slider::setHighlightColor)
+        .function("setHighlightedRange", &Slider::setHighlightedRange);
+    emscripten::class_<JSSlider, base<Slider>>("Slider")
+        .constructor<
+            nanogui::Widget*,
+            float,
+            float
+        >()
+        .function("setCallbacks", &JSSlider::setCallbackJS);
+}
+
+EMSCRIPTEN_BINDINGS(TextBox) {
+    emscripten::class_<TextBox, base<Widget>>("TextBox")
+        .constructor<
+            nanogui::Widget*,
+            std::string
+        >()
+        .function("value", &TextBox::value)
+        .function("setValue", &TextBox::setValue)
+        .function("editable", &TextBox::editable)
+        .function("setEditable", &TextBox::setEditable)
+        .function("spinnable", &TextBox::spinnable)
+        .function("setSpinnable", &TextBox::setSpinnable)
+        .function("alignment", &TextBox::alignment)
+        .function("setAlignment", &TextBox::setAlignment)
+        .function("placeholder", &TextBox::placeholder)
+        .function("setPlaceholder", &TextBox::setPlaceholder)
+        ;
+}
+
+
 
 
 EMSCRIPTEN_BINDINGS ( stl_wrappers )  {

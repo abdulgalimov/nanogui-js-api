@@ -194,6 +194,25 @@ function createBasicWidgets() {
     console.log('checkbox change state', state, checkbox);
   });
   new Nanogui.CheckBox(win, "Flag 2");
+  //
+  new Nanogui.Label(win, "Progress bar");
+  var progressBar = new Nanogui.ProgressBar(win);
+  var value = 0;
+  setInterval(function() {
+    value += 0.001;
+    progressBar.setValue(value-Math.floor(value));
+  }, 10);
+  //
+  new Nanogui.Label(win, "Slider and text box");
+  var panel = new Nanogui.Widget(win);
+  panel.setLayout(new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2));
+  var slider = new Nanogui.Slider(panel, 0, 100);
+  slider.setFixedWidth(90);
+  var textBox = new Nanogui.TextBox(panel, '0');
+  textBox.setFixedWidth(40);
+  slider.addChange(function(slider, value) {
+    textBox.setValue(''+Math.round(value));
+  });
 }
 
 NanoguiModule(Nanogui);
