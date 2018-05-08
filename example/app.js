@@ -41,21 +41,6 @@ Nanogui.postRun.push(function() {
   start();
 });
 
-function nanoguiEvent(event) {
-  switch (event) {
-    case 1:
-    var id = arguments[1];
-      if (Nanogui.Button.items[id]) {
-        var button = Nanogui.Button.items[id];
-        var listeners = button._clickListeners;
-        for (var i=0; i<listeners.length; i++) {
-          listeners[i].func(button);
-        }
-      }
-      break;
-  }
-}
-
 
 function stringToPointer(string) {
   return Nanogui.allocate(Nanogui.intArrayFromString(string), 'i8', Nanogui.ALLOC_NORMAL);
