@@ -327,6 +327,26 @@ public:
     }
 };
 
+
+class JSComboBox: public ComboBox {
+public:
+    JSComboBox(Widget *parent, std::vector<std::string> items)
+    : ComboBox(parent, items) {
+
+    }
+
+    int setCallbackJS() {
+        //
+        setCallback([this](int index) {
+            dropEvent(5, 2, (int)this, index);
+        });
+        //
+        return (int)this;
+    }
+};
+
+
+
 class JSMessageDialog: public MessageDialog {
 public:
     JSMessageDialog(Widget *parent, int type, std::string title,
@@ -446,13 +466,27 @@ EMSCRIPTEN_BINDINGS(Button) {
 }
 
 EMSCRIPTEN_BINDINGS(CheckBox) {
-    emscripten::class_<CheckBox, base<Widget>>("__CheckBox");
+    emscripten::class_<CheckBox, base<Widget>>("__CheckBox")
+        .function("setChecked", &CheckBox::setChecked);
     emscripten::class_<JSCheckBox, base<CheckBox>>("CheckBox")
         .constructor<
             nanogui::Widget*,
             std::string
         >()
         .function("setCallbacks", &JSCheckBox::setCallbackJS);
+}
+
+EMSCRIPTEN_BINDINGS(ComboBox) {
+    emscripten::class_<ComboBox, base<Widget>>("__ComboBox")
+        .function("selectedIndex", &ComboBox::selectedIndex)
+        .function("setSelectedIndex", &ComboBox::setSelectedIndex);
+//        .function("setItems", &ComboBox::setItems);
+    emscripten::class_<JSComboBox, base<ComboBox>>("ComboBox")
+        .constructor<
+            nanogui::Widget*,
+            std::vector<std::string>
+        >()
+        .function("setCallbacks", &JSComboBox::setCallbackJS);
 }
 
 
@@ -473,11 +507,16 @@ EMSCRIPTEN_BINDINGS(MessageDialog) {
 
 
 EMSCRIPTEN_BINDINGS(Label) {
-    emscripten::class_<nanogui::Label>("Label")
+    emscripten::class_<nanogui::Label, base<Widget>>("Label")
         .constructor<
             nanogui::Window*,
             std::string,
             std::string,
             int
         >();
+}
+
+
+EMSCRIPTEN_BINDINGS ( stl_wrappers )  {
+    register_vector<std::string> ( "VectorString" );
 }

@@ -20,7 +20,11 @@ var Nanogui = {
   setStatus: function(text) {
   },
   locateFile : function(file) {
-    return '../build/'+file;
+    if (window.location.href.indexOf('127.0.0.1') !== -1) {
+      return '../build/'+file;
+    } else {
+      return 'wasm/'+file;
+    }
   }
 };
 
@@ -67,11 +71,13 @@ function createButtonDemo() {
   var win = new Nanogui.Window(screen, "Button demo");
   win.setPosition(new Nanogui.Vector2i(50, 50));
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
+  console.log('layout', layout);
   win.setLayout(layout);
   //
   //
   //
-  new Nanogui.Label(win, "Push buttons", "sans-bold", 16);
+  var label = new Nanogui.Label(win, "Push buttons");
+  console.log('label', label);
   //
   var plainButton = new Nanogui.Button(win, "Plain button", 0);
   plainButton.addClick(function(b) {
@@ -88,7 +94,7 @@ function createButtonDemo() {
   //
   //
   //
-  new Nanogui.Label(win, "Toggle buttons", "sans-bold", 16);
+  new Nanogui.Label(win, "Toggle buttons");
   //
   var toggleButton = new Nanogui.Button(win, 'Toggle me', 0);
   toggleButton.setFlags(Nanogui.Button.Flags.ToggleButton);
@@ -98,7 +104,7 @@ function createButtonDemo() {
   //
   //
   //
-  new Nanogui.Label(win, "Radio buttons", "sans-bold", 16);
+  new Nanogui.Label(win, "Radio buttons");
   function onRadioButtonChange(button, state) {
     console.log('radio button change:', state, button);
   }
@@ -111,7 +117,7 @@ function createButtonDemo() {
   //
   //
   //
-  new Nanogui.Label(win, "A tool palette", "sans-bold", 16);
+  new Nanogui.Label(win, "A tool palette");
   var tools = new Nanogui.Widget(win);
   layout = new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2);
   tools.setLayout(layout);
@@ -122,12 +128,13 @@ function createButtonDemo() {
   //
   //
   //
-  new Nanogui.Label(win, 'Popup buttons', 'sans-bold', 16);
+  new Nanogui.Label(win, 'Popup buttons');
   var popupButton = new Nanogui.PopupButton(win, 'Popup', Nanogui.Icons.EXPORT);
   var popup = popupButton.popup();
   popup.setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
-  new Nanogui.Label(popup, "Arbitrary widgets can be placed here", "sans-bold", 16);
+  new Nanogui.Label(popup, "Arbitrary widgets can be placed here");
   var checkbox = new Nanogui.CheckBox(popup, "A check box");
+  checkbox.setChecked(true);
   checkbox.addChange(function(checkbox, state) {
     console.log('checkbox change state', state, checkbox);
   });
@@ -150,7 +157,7 @@ function createBasicWidgets() {
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
   win.setLayout(layout);
   //
-  new Nanogui.Label(win, "Message dialog", "sans-bold", 16);
+  new Nanogui.Label(win, "Message dialog");
   var tools = new Nanogui.Widget(win);
   tools.setLayout(new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2));
   function onDialogState(dialog, state) {
@@ -171,6 +178,22 @@ function createBasicWidgets() {
     var message = new Nanogui.MessageDialog(screen, Nanogui.MessageDialog.Type.Warning, "Warning", "This is question message", "Yes", "No", true);
     message.addClick(onDialogState);
   });
+  //
+  //
+  //
+  new Nanogui.Label(win, "Combo box");
+  var comboBox = new Nanogui.ComboBox(win, Nanogui.createVectorString('item 1', 'item 2', 'item 3'));
+  comboBox.addChange(function(cb, index) {
+    console.log('combo box selected', index, cb);
+  });
+  //
+  new Nanogui.Label(win, "Check box");
+  var checkbox = new Nanogui.CheckBox(win, "Flag 1");
+  checkbox.setChecked(true);
+  checkbox.addChange(function(checkbox, state) {
+    console.log('checkbox change state', state, checkbox);
+  });
+  new Nanogui.CheckBox(win, "Flag 2");
 }
 
 NanoguiModule(Nanogui);
