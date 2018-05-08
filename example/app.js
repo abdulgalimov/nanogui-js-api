@@ -53,14 +53,18 @@ function createExamle() {
 
 
 var screen;
-var win;
-var button;
 function createApp() {
-  var v = new Nanogui.Vector2i(1024, 768);
-  screen = new Nanogui.Screen(v, "NanoGUI for JS", true, false, 8, 8, 24, 8, 0, 3, 0, 0);
+  var v = new Nanogui.Vector2i(window.innerWidth, window.innerHeight);
+  screen = new Nanogui.Screen(v, "NanoGUI for JS", true, false, 8, 8, 24, 8, 0, 3, 3, 1);
   screen.setVisible(true);
   //
-  win = new Nanogui.Window(screen, "Button demo");
+  createButtonDemo();
+  createBasicWidgets();
+  //
+  screen.performLayout();
+}
+function createButtonDemo() {
+  var win = new Nanogui.Window(screen, "Button demo");
   win.setPosition(new Nanogui.Vector2i(50, 50));
   var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
   win.setLayout(layout);
@@ -71,13 +75,13 @@ function createApp() {
   //
   var plainButton = new Nanogui.Button(win, "Plain button", 0);
   plainButton.addClick(function(b) {
-    console.log('plain button clicked');
+    console.log('plain button clicked', b);
   });
   plainButton.setTooltip("short tooltip");
   //
   var styledButton = new Nanogui.Button(win, "Styled", 0x0000F235);
   styledButton.addClick(function(b) {
-    console.log('styled button clicked');
+    console.log('styled button clicked', b);
   });
   styledButton.setTooltip("This button has a fairly long tooltip. It is so long, in fact, that the shown text will span several lines.");
   styledButton.setBackgroundColor(new Nanogui.Color(0, 0, 255, 25));
@@ -89,7 +93,7 @@ function createApp() {
   var toggleButton = new Nanogui.Button(win, 'Toggle me', 0);
   toggleButton.setFlags(Nanogui.Button.Flags.ToggleButton);
   toggleButton.addChange(function(button, state) {
-    console.log('toggle button:', state);
+    console.log('toggle button:', state, button);
   });
   //
   //
@@ -111,7 +115,6 @@ function createApp() {
   var tools = new Nanogui.Widget(win);
   layout = new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2);
   tools.setLayout(layout);
-  console.log('tools.setLayout', tools.setLayout);
   Nanogui.createToolButton(tools, Nanogui.Icons.FACEBOOK, 'Facebook');
   Nanogui.createToolButton(tools, Nanogui.Icons.TWITTER, 'Twitter');
   Nanogui.createToolButton(tools, Nanogui.Icons.BAIDU, 'Baidu');
@@ -124,7 +127,10 @@ function createApp() {
   var popup = popupButton.popup();
   popup.setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
   new Nanogui.Label(popup, "Arbitrary widgets can be placed here", "sans-bold", 16);
-  new Nanogui.CheckBox(popup, "A check box");
+  var checkbox = new Nanogui.CheckBox(popup, "A check box");
+  checkbox.addChange(function(checkbox, state) {
+    console.log('checkbox change state', state, checkbox);
+  });
   //
   // popup right
   var popupRight = new Nanogui.PopupButton(popup, "Recursive popup", Nanogui.Icons.FLASH);
@@ -136,8 +142,35 @@ function createApp() {
   popupLeft.popup().setLayout(new Nanogui.GroupLayout(15, 6, 14, 20));
   popupLeft.setSide(Nanogui.Popup.Side.Left);
   new Nanogui.CheckBox(popupLeft.popup(), "Another check box");
+}
+
+function createBasicWidgets() {
+  var win = new Nanogui.Window(screen, "Basic widgets");
+  win.setPosition(new Nanogui.Vector2i(250, 50));
+  var layout = new Nanogui.GroupLayout(15, 6, 14, 20);
+  win.setLayout(layout);
   //
-  screen.performLayout();
+  new Nanogui.Label(win, "Message dialog", "sans-bold", 16);
+  var tools = new Nanogui.Widget(win);
+  tools.setLayout(new Nanogui.BoxLayout(Nanogui.Orientation.Horizontal, Nanogui.Alignment.Middle, 0, 2));
+  function onDialogState(dialog, state) {
+    console.log('inDialogState', state, dialog);
+  }
+  var infoButton = new Nanogui.Button(tools, "Info", 0);
+  infoButton.addClick(function() {
+    var message = new Nanogui.MessageDialog(screen, Nanogui.MessageDialog.Type.Information, "Title", "This is information message", "OK", "Cancel", false);
+    message.addClick(onDialogState);
+  });
+  var warnButton = new Nanogui.Button(tools, "Warn", 0);
+  warnButton.addClick(function() {
+    var message = new Nanogui.MessageDialog(screen, Nanogui.MessageDialog.Type.Warning, "Warning", "This is warning message", "OK", "Cancel", false);
+    message.addClick(onDialogState);
+  });
+  var askButton = new Nanogui.Button(tools, "Ask", 0);
+  askButton.addClick(function() {
+    var message = new Nanogui.MessageDialog(screen, Nanogui.MessageDialog.Type.Warning, "Warning", "This is question message", "Yes", "No", true);
+    message.addClick(onDialogState);
+  });
 }
 
 NanoguiModule(Nanogui);

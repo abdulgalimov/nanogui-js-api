@@ -142,9 +142,33 @@ public:
         Popup *popupLeft = popupBtn->popup();
         popupLeft->setLayout(new GroupLayout());
         new CheckBox(popupLeft, "Another check box");
+
+
+
         window = new Window(this, "Basic widgets");
         window->setPosition(Vector2i(200, 15));
         window->setLayout(new GroupLayout());
+
+        new Label(window, "Message dialog", "sans-bold");
+        tools = new Widget(window);
+        tools->setLayout(new BoxLayout(Orientation::Horizontal,
+                                       Alignment::Middle, 0, 6));
+        b = new Button(tools, "Info");
+
+        b->setCallback([&] {
+            auto dlg = new MessageDialog(this, MessageDialog::Type::Information, "Title", "This is an information message");
+            dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+        });
+        b = new Button(tools, "Warn");
+        b->setCallback([&] {
+            auto dlg = new MessageDialog(this, MessageDialog::Type::Warning, "Title", "This is a warning message");
+            dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+        });
+        b = new Button(tools, "Ask");
+        b->setCallback([&] {
+            auto dlg = new MessageDialog(this, MessageDialog::Type::Warning, "Title", "This is a question message", "Yes", "No", true);
+            dlg->setCallback([](int result) { cout << "Dialog result: " << result << endl; });
+        });
 
 
 
@@ -303,6 +327,27 @@ public:
     }
 };
 
+class JSMessageDialog: public MessageDialog {
+public:
+    JSMessageDialog(Widget *parent, int type, std::string title,
+        std::string message,
+        std::string buttonText,
+        std::string altButtonText,
+        bool altButton)
+    : MessageDialog(parent, (Type)type, title, message, buttonText, altButtonText, altButton) {
+
+    }
+
+    int setCallbackJS() {
+        //
+        setCallback([this](int state) {
+            dropEvent(4, 1, (int)this, state);
+        });
+        //
+        return (int)this;
+    }
+};
+
 
 
 
@@ -319,7 +364,7 @@ EMSCRIPTEN_BINDINGS(Vector2i) {
 }
 
 EMSCRIPTEN_BINDINGS(Screen) {
-    emscripten::class_<nanogui::Screen>("Screen")
+    emscripten::class_<nanogui::Screen, base<Widget>>("Screen")
         .constructor<
             Eigen::Matrix<int,2,1>,
             std::string,
@@ -408,6 +453,22 @@ EMSCRIPTEN_BINDINGS(CheckBox) {
             std::string
         >()
         .function("setCallbacks", &JSCheckBox::setCallbackJS);
+}
+
+
+EMSCRIPTEN_BINDINGS(MessageDialog) {
+    emscripten::class_<MessageDialog, base<Window>>("__MessageDialog");
+    emscripten::class_<JSMessageDialog, base<MessageDialog>>("MessageDialog")
+        .constructor<
+            Widget*,
+            int,
+            std::string,
+            std::string,
+            std::string,
+            std::string,
+            bool
+        >()
+        .function("setCallbacks", &JSMessageDialog::setCallbackJS);
 }
 
 
