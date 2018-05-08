@@ -3,6 +3,7 @@
  */
 
 var gulp = require('gulp');
+var compressor = require('node-minify');
 var fs = require('fs');
 var exec = require('child_process').exec;
 
@@ -51,15 +52,25 @@ function buildWasm() {
 
 
 function addJsPrototype() {
-  return new Promise(function(resolve) {
-    var nanoguiCode = fs.readFileSync(BUILD_DIR+'nanogui.js', {encoding:'utf8'});
-    var prototypeCode = fs.readFileSync(PROJECT_DIR+'lib/js/prototype.js', {encoding:'utf8'});
-    //
-    var index = nanoguiCode.indexOf('return NanoguiModule;');
-    nanoguiCode = nanoguiCode.substr(0, index);
-    nanoguiCode += prototypeCode;
-    nanoguiCode += '\n\n  return NanoguiModule;\n};';
-    //fs.appendFileSync(BUILD_DIR+'nanogui.js', prototypeCode);
-    fs.writeFileSync(BUILD_DIR+'nanogui.js', nanoguiCode);
-  });
+  return compressor.minify({
+    compressor: 'uglifyjs',
+    input: PROJECT_DIR+'lib/js/prototype.js',
+    output: BUILD_DIR+'prototype.js',
+    callback: function (err, min) {}
+  })
+    .then(function() {
+      return new Promise(function(resolve) {
+        var nanoguiCode = fs.readFileSync(BUILD_DIR+'nanogui.js', {encoding:'utf8'});
+        var prototypeCode = fs.readFileSync(BUILD_DIR+'prototype.js', {encoding:'utf8'});
+        //
+        var index = nanoguiCode.indexOf('return NanoguiModule;');
+        nanoguiCode = nanoguiCode.substr(0, index);
+        nanoguiCode += prototypeCode;
+        nanoguiCode += '\n\n  return NanoguiModule;\n};';
+        //fs.appendFileSync(BUILD_DIR+'nanogui.js', prototypeCode);
+        fs.writeFileSync(BUILD_DIR+'nanogui.js', nanoguiCode);
+        //
+        resolve();
+      });
+    });
 }
